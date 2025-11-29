@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const api = axios.create({
+export const api = axios.create({
   // Default to local Spring Boot/JHipster backend when env is unset
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080",
 });
