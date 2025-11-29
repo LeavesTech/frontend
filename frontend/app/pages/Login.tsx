@@ -32,8 +32,8 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8 border border-slate-100">
+    <div className="auth-page auth-page--indigo">
+      <div className="auth-card auth-card-md">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-slate-900">LeavesTech Hesabınıza Giriş Yapın</h1>
           <p className="text-slate-500 text-sm mt-2">
@@ -43,38 +43,38 @@ export function Login() {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Kullanıcı Adı</label>
+            <label className="form-label">Kullanıcı Adı</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               placeholder="jhipster"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Şifre</label>
+            <label className="form-label">Şifre</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               placeholder="••••••••"
               required
             />
           </div>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg p-3">{error}</p>}
+          {error && <p className="error-banner">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg py-2.5 transition disabled:opacity-60 flex items-center justify-center gap-2"
+            className="primary-button"
           >
             {loading && (
-              <span className="h-5 w-5 border-2 border-white/60 border-t-white rounded-full animate-spin"></span>
+              <span className="button-spinner"></span>
             )}
             {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
           </button>
