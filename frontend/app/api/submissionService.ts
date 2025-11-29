@@ -30,9 +30,37 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export async function getSubmissions(params?: { examId?: number; role?: "teacher" | "manager"; owner?: string }) {
-  const response = await api.get<Submission[]>("/api/submissions", {
-    params,
+function mapStatus(s?: string) {
+  if (!s) return undefined;
+  if (s === "PASSED") return "Tamamlandı";
+  if (s === "PENDING") return "Beklemede";
+  if (s === "FAILED") return "Başarısız";
+  return s;
+}
+
+export async function getSubmissions() {
+  const response = await api.get<any[]>("/api/submissions");
+  return (response.data || []).map((s) => {
+    const score = typeof s?.score === "number" ? s.score : undefined;
+    const status = mapStatus(s?.status);
+    const createdDate = s?.submissionDate ? new Date(s.submissionDate).toISOString() : undefined;
+    const examId = s?.exam?.id;
+    const examName = s?.exam?.title;
+    const student = s?.student?.user?.login ?? (s?.student?.id != null ? `Öğrenci#${s.student.id}` : undefined);
+    const successRate = score != null ? Math.max(0, Math.min(1, score / 100)) : undefined;
+    const buildResult = s?.status === "PASSED" ? "Geçti" : s?.status === "FAILED" ? "Hata" : "Bilinmiyor";
+    return {
+      id: s?.id,
+      examId,
+      examName,
+      student,
+      score,
+      status,
+      successRate,
+      complexity: s?.complexity,
+      testResult: s?.testResult,
+      buildResult,
+      createdDate,
+    } as Submission;
   });
-  return response.data;
 }

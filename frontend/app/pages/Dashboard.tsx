@@ -165,9 +165,9 @@ export function Dashboard() {
       setDataError("");
       try {
         const [fetchedExams, fetchedSubmissions, fetchedSecurity] = await Promise.all([
-          getExams({ role, owner: role === "teacher" ? account?.login : undefined }),
-          getSubmissions({ role, owner: role === "teacher" ? account?.login : undefined }),
-          getSecurityIncidents({ role, owner: role === "teacher" ? account?.login : undefined }),
+          getExams(),
+          getSubmissions(),
+          getSecurityIncidents(),
         ]);
 
         if (cancelled) return;
@@ -191,7 +191,7 @@ export function Dashboard() {
     return () => {
       cancelled = true;
     };
-  }, [role, account?.login]);
+  }, []);
 
   const submissionCountByExam = useMemo(() => {
     return submissionData.reduce<Record<number, number>>((acc, submission) => {

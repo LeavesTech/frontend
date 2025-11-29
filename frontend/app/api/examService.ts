@@ -27,9 +27,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export async function getExams(params?: { role?: "teacher" | "manager"; owner?: string }) {
-  const response = await api.get<Exam[]>("/api/exams", {
-    params,
+export async function getExams() {
+  const response = await api.get<any[]>("/api/exams");
+  const now = Date.now();
+  return (response.data || []).map((e) => {
+    const startedAt = e?.startedAt ? new Date(e.startedAt).toISOString() : undefined;
+    const endAt = e?.endAt ? new Date(e.endAt).toISOString() : undefined;
+    const startMs = e?.startedAt ? new Date(e.startedAt).getTime() : undefined;
+    const endMs = e?.endAt ? new Date(e.endAt).getTime() : undefined;
+    const isActive = startMs != null && endMs != null && startMs <= now && now < endMs;
+    return {
+      id: e?.id,
+      title: e?.title,
+      name: e?.title,
+      status: isActive ? "active" : "inactive",
+      startDate: startedAt,
+      endDate: endAt,
+      active: isActive,
+    } as Exam;
   });
-  return response.data;
 }

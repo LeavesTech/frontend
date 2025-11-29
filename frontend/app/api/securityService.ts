@@ -27,9 +27,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export async function getSecurityIncidents(params?: { role?: "teacher" | "manager"; owner?: string; examId?: number }) {
-  const response = await api.get<SecurityIncident[]>("/api/security/incidents", {
-    params,
-  });
+export async function getSecurityIncidents() {
+  const response = await api.get<SecurityIncident[]>("/api/security/incidents");
   return response.data;
 }
