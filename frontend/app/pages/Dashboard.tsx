@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { changePassword, clearToken, getAccount } from "../api/authService";
+import { getExams } from "../api/examService";
+import { getSubmissions } from "../api/submissionService";
+import { getSecurityIncidents } from "../api/securityService";
+import type { Exam } from "../api/examService";
+import type { Submission } from "../api/submissionService";
+import type { SecurityIncident } from "../api/securityService";
 import { useNavigate } from "react-router";
 
 interface Account {
@@ -11,44 +17,11 @@ interface Account {
   imageUrl?: string;
 }
 
-interface ExamItem {
-  name: string;
-  status: "aktif" | "pasif";
-  timeLeft: string;
-  submissions: number;
-  violations: number;
-}
-
 interface ActivityItem {
   type: "gonderim" | "ihlal" | "sistem";
   title: string;
   timestamp: string;
   context: string;
-}
-
-interface CodeMetricItem {
-  exam: string;
-  student: string;
-  complexity: string;
-  tests: string;
-  build: string;
-}
-
-interface PerformanceItem {
-  student: string;
-  exam: string;
-  score: number;
-  success: number;
-  progress: "iyi" | "orta" | "dusuk";
-  badge?: string;
-}
-
-interface SecurityDetailItem {
-  type: string;
-  exam: string;
-  student: string;
-  count: number;
-  severity: "normal" | "uyari" | "kritik";
 }
 
 const roleNavigation = {
@@ -83,6 +56,41 @@ const badgeColors: Record<string, string> = {
   "farklı IP": "bg-amber-50 text-amber-800",
 };
 
+interface DerivedExam {
+  id: number;
+  name: string;
+  status: "aktif" | "pasif";
+  timeLeft: string;
+  submissions: number;
+  violations: number;
+}
+
+interface DerivedPerformance {
+  student: string;
+  exam: string;
+  score: number;
+  success: number;
+  progress: "iyi" | "orta" | "dusuk";
+  badge?: string;
+}
+
+interface DerivedMetric {
+  exam: string;
+  student: string;
+  complexity: string;
+  tests: string;
+  build: string;
+}
+
+interface DerivedSecurityDetail {
+  id: number;
+  type: string;
+  exam: string;
+  student: string;
+  count: number;
+  severity: "normal" | "uyari" | "kritik";
+}
+
 export function Dashboard() {
   const navigate = useNavigate();
   const [account, setAccount] = useState<Account | null>(null);
@@ -93,6 +101,11 @@ export function Dashboard() {
   const [role, setRole] = useState<"teacher" | "manager">("teacher");
   const [examFilter, setExamFilter] = useState<string>("Tümü");
   const [violationFilter, setViolationFilter] = useState<"tumu" | "normal" | "uyari" | "kritik">("tumu");
+  const [examData, setExamData] = useState<Exam[]>([]);
+  const [submissionData, setSubmissionData] = useState<Submission[]>([]);
+  const [securityData, setSecurityData] = useState<SecurityIncident[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState("");
 
   useEffect(() => {
     const fetchAccount = async () => {
@@ -128,69 +141,216 @@ export function Dashboard() {
     navigate("/login", { replace: true });
   };
 
-  const exams: ExamItem[] = role === "teacher"
-    ? [
-        { name: "Algoritmalar - Vize", status: "aktif", timeLeft: "38 dk", submissions: 42, violations: 3 },
-        { name: "Veri Yapıları - Final", status: "pasif", timeLeft: "—", submissions: 0, violations: 0 },
-        { name: "Programlama 101", status: "aktif", timeLeft: "2g 4s", submissions: 68, violations: 5 },
-      ]
-    : [
-        { name: "Kurum Geneli Mart", status: "aktif", timeLeft: "1g 3s", submissions: 312, violations: 12 },
-        { name: "Nisan Deneme", status: "pasif", timeLeft: "—", submissions: 0, violations: 1 },
-        { name: "Bölüm Bazlı Ölçme", status: "aktif", timeLeft: "5g", submissions: 156, violations: 4 },
-      ];
+  const formatTimeLeft = (exam: Exam) => {
+    if (!exam.endDate) return "—";
 
-  const activities: ActivityItem[] = [
-    { type: "gonderim", title: "Yeni kod gönderimi", timestamp: "5 dk önce", context: "Algoritmalar - Ayşe Y." },
-    { type: "ihlal", title: "Plagiarism uyarısı", timestamp: "12 dk önce", context: "Programlama 101 - Emre K." },
-    { type: "sistem", title: "Sistem uyarısı", timestamp: "20 dk önce", context: "Kurum VPN dışı erişim" },
-    { type: "gonderim", title: "Test başarısı güncellendi", timestamp: "45 dk önce", context: "Algoritmalar - Kerem T." },
-  ];
+    const end = new Date(exam.endDate).getTime();
+    const now = Date.now();
+    if (Number.isNaN(end) || end <= now) return "—";
 
-  const codeMetrics: CodeMetricItem[] = [
-    { exam: "Algoritmalar", student: "Ayşe Y.", complexity: "Düşük karmaşıklık", tests: "%92 başarı", build: "Geçti" },
-    { exam: "Programlama 101", student: "Emre K.", complexity: "Orta", tests: "%75 başarı", build: "Geçti" },
-    { exam: "Veri Yapıları", student: "Kerem T.", complexity: "Yüksek", tests: "%60 başarı", build: "Hata" },
-  ];
+    const diffSeconds = Math.floor((end - now) / 1000);
+    const days = Math.floor(diffSeconds / (24 * 3600));
+    const hours = Math.floor((diffSeconds % (24 * 3600)) / 3600);
+    const minutes = Math.floor((diffSeconds % 3600) / 60);
 
-  const performances: PerformanceItem[] = [
-    { student: "Ayşe Yılmaz", exam: "Algoritmalar", score: 92, success: 0.92, progress: "iyi" },
-    { student: "Emre Kaya", exam: "Programlama 101", score: 78, success: 0.78, progress: "orta", badge: "plagiarism" },
-    { student: "Kerem Tekin", exam: "Veri Yapıları", score: 65, success: 0.65, progress: "orta" },
-    { student: "Zeynep Ak", exam: "Algoritmalar", score: 54, success: 0.54, progress: "dusuk", badge: "farklı IP" },
-  ];
+    if (days > 0) return `${days}g ${hours}s`;
+    if (hours > 0) return `${hours}s ${minutes}dk`;
+    return `${minutes} dk`;
+  };
 
-  const securityDetails: SecurityDetailItem[] = [
-    { type: "Plagiarism", exam: "Programlama 101", student: "Emre Kaya", count: 2, severity: "uyari" },
-    { type: "Farklı IP", exam: "Algoritmalar", student: "Zeynep Ak", count: 1, severity: "kritik" },
-    { type: "Çoklu oturum", exam: "Kurum Geneli Mart", student: "—", count: 4, severity: "normal" },
-  ];
+  useEffect(() => {
+    let cancelled = false;
+    const loadData = async () => {
+      setDataLoading(true);
+      setDataError("");
+      try {
+        const [fetchedExams, fetchedSubmissions, fetchedSecurity] = await Promise.all([
+          getExams({ role, owner: role === "teacher" ? account?.login : undefined }),
+          getSubmissions({ role, owner: role === "teacher" ? account?.login : undefined }),
+          getSecurityIncidents({ role, owner: role === "teacher" ? account?.login : undefined }),
+        ]);
+
+        if (cancelled) return;
+        setExamData(fetchedExams ?? []);
+        setSubmissionData(fetchedSubmissions ?? []);
+        setSecurityData(fetchedSecurity ?? []);
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) {
+          setDataError("Veriler alınırken bir sorun oluştu.");
+        }
+      } finally {
+        if (!cancelled) {
+          setDataLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [role, account?.login]);
+
+  const submissionCountByExam = useMemo(() => {
+    return submissionData.reduce<Record<number, number>>((acc, submission) => {
+      acc[submission.examId] = (acc[submission.examId] || 0) + 1;
+      return acc;
+    }, {});
+  }, [submissionData]);
+
+  const securityCountByExam = useMemo(() => {
+    return securityData.reduce<Record<number, number>>((acc, incident) => {
+      if (!incident.examId) return acc;
+      acc[incident.examId] = (acc[incident.examId] || 0) + (incident.count || 1);
+      return acc;
+    }, {});
+  }, [securityData]);
+
+  const violationsByStudent = useMemo(() => {
+    return securityData.reduce<Record<string, string>>((acc, incident) => {
+      if (!incident.student || !incident.type) return acc;
+      acc[incident.student] = incident.type;
+      return acc;
+    }, {});
+  }, [securityData]);
+
+  const exams: DerivedExam[] = useMemo(() => {
+    const mapped = examData.map((exam) => {
+      const isActive = exam.active ?? ["aktif", "active", "ongoing"].includes((exam.status || "").toLowerCase());
+      return {
+        id: exam.id,
+        name: exam.title || exam.name || `Sınav #${exam.id}`,
+        status: isActive ? "aktif" : "pasif",
+        timeLeft: formatTimeLeft(exam),
+        submissions: submissionCountByExam[exam.id] || 0,
+        violations: securityCountByExam[exam.id] || 0,
+      };
+    });
+
+    if (examFilter === "Tümü") return mapped;
+    return mapped.filter((exam) => exam.name.toLowerCase().includes(examFilter.toLowerCase()));
+  }, [examData, examFilter, securityCountByExam, submissionCountByExam]);
+
+  const activities: ActivityItem[] = useMemo(() => {
+    const submissionActivities = submissionData.map<ActivityItem>((submission) => ({
+      type: "gonderim",
+      title: "Yeni kod gönderimi",
+      timestamp: submission.createdDate || new Date().toISOString(),
+      context: `${submission.examName || "Sınav"} - ${submission.student || "Öğrenci"}`,
+    }));
+
+    const securityActivities = securityData.map<ActivityItem>((incident) => ({
+      type: "ihlal",
+      title: incident.type || "Güvenlik uyarısı",
+      timestamp: incident.createdDate || new Date().toISOString(),
+      context: `${incident.examName || "Sınav"} - ${incident.student || "Kullanıcı"}`,
+    }));
+
+    const items = [...submissionActivities, ...securityActivities].sort((a, b) => {
+      const timeB = new Date(b.timestamp).getTime() || 0;
+      const timeA = new Date(a.timestamp).getTime() || 0;
+      return timeB - timeA;
+    });
+
+    return items.slice(0, 8);
+  }, [securityData, submissionData]);
+
+  const codeMetrics: DerivedMetric[] = useMemo(() => {
+    const mapped = submissionData.map<DerivedMetric>((submission) => ({
+      exam: submission.examName || "Sınav",
+      student: submission.student || "Öğrenci",
+      complexity: submission.complexity || "Belirleniyor",
+      tests: submission.successRate != null ? `%${Math.round(submission.successRate * 100)} başarı` : "Test sonucu yok",
+      build: submission.buildResult || "Bilinmiyor",
+    }));
+
+    if (examFilter === "Tümü") return mapped;
+    return mapped.filter((metric) => metric.exam.toLowerCase().includes(examFilter.toLowerCase()));
+  }, [examFilter, submissionData]);
+
+  const performances: DerivedPerformance[] = useMemo(() => {
+    const grouped = submissionData.reduce<Record<string, { total: number; count: number; exam?: string }>>((acc, submission) => {
+      if (!submission.student) return acc;
+      const key = `${submission.student}||${submission.examName || ""}`;
+      acc[key] = acc[key] || { total: 0, count: 0, exam: submission.examName };
+      acc[key].total += submission.score ?? 0;
+      acc[key].count += 1;
+      return acc;
+    }, {});
+
+    const mapped = Object.entries(grouped).map(([key, value]) => {
+      const [student] = key.split("||");
+      const average = value.total / value.count || 0;
+      const success = Math.min(Math.max(average / 100, 0), 1);
+      let progress: "iyi" | "orta" | "dusuk" = "dusuk";
+      if (success >= 0.8) progress = "iyi";
+      else if (success >= 0.6) progress = "orta";
+
+      return {
+        student,
+        exam: value.exam || "Sınav",
+        score: Math.round(average),
+        success,
+        progress,
+        badge: violationsByStudent[student],
+      };
+    });
+
+    if (examFilter === "Tümü") return mapped;
+    return mapped.filter((perf) => perf.exam.toLowerCase().includes(examFilter.toLowerCase()));
+  }, [examFilter, submissionData, violationsByStudent]);
+
+  const securityDetails: DerivedSecurityDetail[] = useMemo(() => {
+    const mapped = securityData.map((incident) => ({
+      id: incident.id,
+      type: incident.type || "İhlal",
+      exam: incident.examName || "Sınav",
+      student: incident.student || "—",
+      count: incident.count || 1,
+      severity: incident.severity || "normal",
+    }));
+
+    if (violationFilter === "tumu") return mapped;
+    return mapped.filter((detail) => detail.severity === violationFilter);
+  }, [securityData, violationFilter]);
 
   const summaryCards = useMemo(
     () => {
+      const activeExamCount = exams.filter((e) => e.status === "aktif").length;
+      const totalExams = exams.length;
+      const totalViolations = securityDetails.reduce((acc, detail) => acc + detail.count, 0);
+      const averageScore = submissionData.length
+        ? Math.round(
+            submissionData.reduce((acc, submission) => acc + (submission.score || 0), 0) / submissionData.length,
+          )
+        : 0;
+      const pendingSubmissions = submissionData.filter((submission) => (submission.status || "").toLowerCase() !== "tamamlandı").length;
+
       if (role === "teacher") {
         return [
-          { title: "Aktif Sınav", value: exams.filter((e) => e.status === "aktif").length, detail: "2 sınav", tone: "normal" },
-          { title: "Genel Başarı", value: "%78", detail: "Trend ↑", tone: "normal" },
-          { title: "Güvenlik İhlali", value: "8", detail: "Son 24 saat", tone: "uyari" },
-          { title: "Bekleyen Gönderim", value: "12", detail: "İnceleniyor", tone: "normal" },
+          { title: "Aktif Sınav", value: activeExamCount, detail: `${totalExams} toplam`, tone: "normal" },
+          { title: "Genel Başarı", value: `%${averageScore}`, detail: "Gönderim ort.", tone: "normal" },
+          { title: "Güvenlik İhlali", value: totalViolations.toString(), detail: "Son olaylar", tone: "uyari" },
+          { title: "Bekleyen Gönderim", value: pendingSubmissions.toString(), detail: "İnceleniyor", tone: "normal" },
         ];
       }
 
       return [
-        { title: "Sınav Durumu", value: "3 aktif", detail: "Toplam 5", tone: "normal" },
-        { title: "Başarı Ort.", value: "%74", detail: "Kurum geneli", tone: "normal" },
-        { title: "İhlal Sayısı", value: "17", detail: "Son 24 saat", tone: "uyari" },
-        { title: "Sistem Uyarısı", value: "3 kritik", detail: "Yönetici", tone: "kritik" },
+        { title: "Sınav Durumu", value: `${activeExamCount} aktif`, detail: `${totalExams} toplam`, tone: "normal" },
+        { title: "Başarı Ort.", value: `%${averageScore}`, detail: "Kurum geneli", tone: "normal" },
+        { title: "İhlal Sayısı", value: totalViolations.toString(), detail: "Son olaylar", tone: "uyari" },
+        { title: "Sistem Uyarısı", value: `${securityDetails.filter((detail) => detail.severity === "kritik").length} kritik`, detail: "Yönetici", tone: "kritik" },
       ];
     },
-    [exams, role],
+    [exams, role, securityDetails, submissionData],
   );
 
-  const filteredExams = exams.filter((exam) => examFilter === "Tümü" || exam.name.includes(examFilter));
-  const filteredMetrics = codeMetrics.filter((metric) => examFilter === "Tümü" || metric.exam.includes(examFilter));
-  const filteredPerformances = performances.filter((perf) => examFilter === "Tümü" || perf.exam.includes(examFilter));
-  const filteredSecurity = securityDetails.filter((detail) => violationFilter === "tumu" || detail.severity === violationFilter);
+  const filteredExams = exams;
+  const filteredMetrics = codeMetrics;
+  const filteredPerformances = performances;
+  const filteredSecurity = securityDetails;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50">
@@ -280,6 +440,18 @@ export function Dashboard() {
             </div>
           </header>
 
+          {dataError && (
+            <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+              {dataError}
+            </div>
+          )}
+
+          {dataLoading && (
+            <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700">
+              Veriler yükleniyor...
+            </div>
+          )}
+
           <section className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {summaryCards.map((card) => (
               <div
@@ -307,9 +479,9 @@ export function Dashboard() {
                 className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-sm focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               >
                 <option value="Tümü">Tümü</option>
-                {exams.map((exam) => (
-                  <option key={exam.name} value={exam.name}>
-                    {exam.name}
+                {examData.map((exam) => (
+                  <option key={exam.id} value={exam.title || exam.name || `Sınav #${exam.id}`}>
+                    {exam.title || exam.name || `Sınav #${exam.id}`}
                   </option>
                 ))}
               </select>
@@ -391,7 +563,7 @@ export function Dashboard() {
                         </div>
                       </div>
                       <div className="text-right text-xs text-slate-500">
-                        <p>{activity.timestamp}</p>
+                        <p>{new Date(activity.timestamp).toLocaleString("tr-TR")}</p>
                         <button className="text-indigo-600 hover:text-indigo-700">Detaya git</button>
                       </div>
                     </div>
