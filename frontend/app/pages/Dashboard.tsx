@@ -106,31 +106,31 @@ export function Dashboard() {
             <h2 className="text-xl font-semibold text-slate-900 mb-4">Şifre Değiştir</h2>
             <form className="space-y-3" onSubmit={handlePasswordChange}>
               <div>
-                <label className="block text-sm font-medium text-slate-700">Mevcut Şifre</label>
+                <label className="form-label">Mevcut Şifre</label>
                 <input
                   type="password"
                   value={passwords.currentPassword}
                   onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="text-input"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700">Yeni Şifre</label>
+                <label className="form-label">Yeni Şifre</label>
                 <input
                   type="password"
                   value={passwords.newPassword}
                   onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="text-input"
                   required
                 />
               </div>
 
-              {pwdMessage && <p className="text-sm text-slate-600 bg-slate-50 border border-slate-100 rounded-lg p-2">{pwdMessage}</p>}
+              {pwdMessage && <p className="neutral-banner">{pwdMessage}</p>}
 
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg py-2.5 transition flex items-center justify-center gap-2"
+                className="primary-button"
               >
                 Güncelle
               </button>

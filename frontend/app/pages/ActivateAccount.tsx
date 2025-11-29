@@ -32,8 +32,8 @@ export function ActivateAccount() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-xl bg-white shadow-xl rounded-2xl p-8 border border-slate-100 text-center">
+    <div className="auth-page auth-page--emerald">
+      <div className="auth-card auth-card-xl text-center">
         <h1 className="text-2xl font-bold text-slate-900">Hesap Aktivasyonu</h1>
         <p className="text-slate-500 text-sm mt-2">
           Aktivasyon bağlantınızdaki anahtar doğrulanacaktır.
@@ -49,11 +49,8 @@ export function ActivateAccount() {
 
           {status === "success" && (
             <div className="space-y-4">
-              <p className="text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg p-4">{message}</p>
-              <Link
-                to="/login"
-                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700"
-              >
+              <p className="success-banner">{message}</p>
+              <Link to="/login" className="primary-button primary-button-inline inline-flex">
                 Giriş Yap
               </Link>
             </div>
@@ -61,7 +58,7 @@ export function ActivateAccount() {
 
           {status === "error" && (
             <div className="space-y-4">
-              <p className="text-red-700 bg-red-50 border border-red-100 rounded-lg p-4">{message}</p>
+              <p className="error-banner">{message}</p>
               <p className="text-sm text-slate-500">Yeni bir aktivasyon e-postası talep etmek için lütfen kayıt olun.</p>
             </div>
           )}

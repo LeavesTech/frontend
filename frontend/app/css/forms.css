@@ -1,0 +1,63 @@
+.auth-page {
+  @apply min-h-screen bg-gradient-to-br via-white to-slate-100 flex items-center justify-center p-4;
+}
+
+.auth-page--indigo {
+  @apply from-indigo-50;
+}
+
+.auth-page--blue {
+  @apply from-blue-50;
+}
+
+.auth-page--emerald {
+  @apply from-emerald-50;
+}
+
+.auth-card {
+  @apply w-full bg-white shadow-xl rounded-2xl p-8 border border-slate-100;
+}
+
+.auth-card-md {
+  @apply max-w-md;
+}
+
+.auth-card-lg {
+  @apply max-w-lg;
+}
+
+.auth-card-xl {
+  @apply max-w-xl;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-slate-700;
+}
+
+.text-input {
+  @apply mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500;
+}
+
+.primary-button {
+  @apply w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg py-2.5 transition flex items-center justify-center gap-2 disabled:opacity-60;
+}
+
+.primary-button-inline {
+  @apply w-auto px-6;
+}
+
+.button-spinner {
+  @apply h-5 w-5 border-2 border-white/60 border-t-white rounded-full animate-spin;
+}
+
+.error-banner {
+  @apply text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg p-3;
+}
+
+.success-banner {
+  @apply text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg p-3;
+}
+
+.neutral-banner {
+  @apply text-sm text-slate-600 bg-slate-50 border border-slate-100 rounded-lg p-2;
+}

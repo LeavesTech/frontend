@@ -58,8 +58,8 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-white shadow-xl rounded-2xl p-8 border border-slate-100">
+    <div className="auth-page auth-page--indigo">
+      <div className="auth-card auth-card-lg">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-slate-900">Yeni Hesap Oluştur</h1>
           <p className="text-slate-500 text-sm mt-2">
@@ -69,79 +69,79 @@ export function Register() {
 
         <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-slate-700">Kullanıcı Adı</label>
+            <label className="form-label">Kullanıcı Adı</label>
             <input
               type="text"
               value={form.login}
               onChange={(e) => handleChange("login", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               placeholder="jhipster"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Ad</label>
+            <label className="form-label">Ad</label>
             <input
               type="text"
               value={form.firstName}
               onChange={(e) => handleChange("firstName", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               placeholder="Jane"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Soyad</label>
+            <label className="form-label">Soyad</label>
             <input
               type="text"
               value={form.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               placeholder="Doe"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-slate-700">E-posta</label>
+            <label className="form-label">E-posta</label>
             <input
               type="email"
               value={form.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               placeholder="ornek@firma.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Şifre</label>
+            <label className="form-label">Şifre</label>
             <input
               type="password"
               value={form.password}
               onChange={(e) => handleChange("password", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Şifre (Tekrar)</label>
+            <label className="form-label">Şifre (Tekrar)</label>
             <input
               type="password"
               value={form.confirmPassword}
               onChange={(e) => handleChange("confirmPassword", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
               required
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-slate-700">Dil</label>
+            <label className="form-label">Dil</label>
             <select
               value={form.langKey}
               onChange={(e) => handleChange("langKey", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-input"
             >
               <option value="tr">Türkçe</option>
               <option value="en">English</option>
@@ -149,11 +149,11 @@ export function Register() {
           </div>
 
           {error && (
-            <div className="md:col-span-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg p-3">{error}</div>
+            <div className="md:col-span-2 error-banner">{error}</div>
           )}
 
           {success && (
-            <div className="md:col-span-2 text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg p-3">
+            <div className="md:col-span-2 success-banner">
               {success}
             </div>
           )}
@@ -162,10 +162,10 @@ export function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg py-2.5 transition disabled:opacity-60 flex items-center justify-center gap-2"
+              className="primary-button"
             >
               {loading && (
-                <span className="h-5 w-5 border-2 border-white/60 border-t-white rounded-full animate-spin"></span>
+                <span className="button-spinner"></span>
               )}
               {loading ? "Kaydediliyor..." : "Hesap Oluştur"}
             </button>
