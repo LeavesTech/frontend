@@ -431,7 +431,7 @@ export function Dashboard() {
                   <div className="flex items-center justify-between gap-4">
                       {/* Navigation Links */}
                       <nav className="flex items-center gap-1">
-                          {roleNavigation[role].map((item, index) => (
+                          {[...roleNavigation[role], "Ayarlar"].map((item, index) => (
                               <a
                                   key={item}
                                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -439,7 +439,7 @@ export function Dashboard() {
                                           ? "bg-indigo-50 text-indigo-700"
                                           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                                   }`}
-                                  href="#"
+                                  href={item === "Ayarlar" ? "/settings" : "#"}
                               >
                                   {item}
                               </a>
@@ -821,60 +821,14 @@ export function Dashboard() {
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-center justify-between pb-3">
                   <div>
-                    <h2 className="text-lg font-semibold text-slate-900">Hesap ve Şifre</h2>
-                    <p className="text-sm text-slate-500">Profil, dil ve parola güncelleme</p>
+                    <h2 className="text-lg font-semibold text-slate-900">Ayarlar</h2>
+                    <p className="text-sm text-slate-500">Profil ve şifre yönetimi</p>
                   </div>
-                  {loading ? (
-                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-500" aria-hidden />
-                  ) : (
-                    <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">{account?.login}</span>
-                  )}
                 </div>
-
-                {error ? (
-                  <p className="text-sm text-rose-700">{error}</p>
-                ) : (
-                  <div className="space-y-3 text-sm text-slate-700">
-                    <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
-                      {loading ? (
-                        <p>Yükleniyor...</p>
-                      ) : (
-                        <>
-                          <p className="font-semibold">{account?.firstName} {account?.lastName}</p>
-                          <p className="text-slate-600">{account?.email}</p>
-                          <p className="text-slate-600">Dil: {account?.langKey}</p>
-                        </>
-                      )}
-                    </div>
-
-                    <form className="space-y-2" onSubmit={handlePasswordChange}>
-                      <label className="text-xs font-semibold uppercase tracking-wide text-slate-600">Şifre Güncelle</label>
-                      <input
-                        type="password"
-                        value={passwords.currentPassword}
-                        onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
-                        placeholder="Mevcut şifre"
-                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                        required
-                      />
-                      <input
-                        type="password"
-                        value={passwords.newPassword}
-                        onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                        placeholder="Yeni şifre"
-                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                        required
-                      />
-                      {pwdMessage && <p className="text-xs text-emerald-700">{pwdMessage}</p>}
-                      <button
-                        type="submit"
-                        className="w-full rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-                      >
-                        Güncelle
-                      </button>
-                    </form>
-                  </div>
-                )}
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-slate-700">Hesap ayarlarını yönetmek için ayarlar sayfasına gidin.</p>
+                  <a href="/settings" className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-indigo-200">Ayarlar</a>
+                </div>
               </div>
             </div>
           </section>
