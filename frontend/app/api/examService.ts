@@ -10,6 +10,12 @@ export interface Exam {
   endDate?: string;
   active?: boolean;
   ownerLogin?: string;
+  startedAt?: string;
+  endAt?: string;
+  durationTime?: number;
+  type?: string;
+  courseId?: number;
+  questionIds?: number[];
 }
 
 const api = axios.create({
@@ -44,6 +50,51 @@ export async function getExams() {
       startDate: startedAt,
       endDate: endAt,
       active: isActive,
+      startedAt,
+      endAt,
+      durationTime: e?.durationTime,
+      type: e?.type,
+      courseId: e?.course?.id,
+      questionIds: Array.isArray(e?.questions) ? e.questions.map((q: any) => q?.id).filter((v: any) => v != null) : undefined,
     } as Exam;
   });
+}
+
+export interface ExamInput {
+  title: string;
+  startedAt: string;
+  endAt: string;
+  durationTime?: number;
+  type?: string;
+  courseId?: number;
+  questionIds?: number[];
+}
+
+export async function createExam(payload: ExamInput) {
+  const body: any = {
+    title: payload.title,
+    startedAt: payload.startedAt,
+    endAt: payload.endAt,
+  };
+  if (payload.durationTime != null) body.durationTime = payload.durationTime;
+  if (payload.type != null) body.type = payload.type;
+  if (payload.courseId != null) body.course = { id: payload.courseId };
+  if (Array.isArray(payload.questionIds)) body.questions = payload.questionIds.map((id) => ({ id }));
+  const response = await api.post<any>("/api/exams", body);
+  return response.data;
+}
+
+export async function updateExam(id: number, payload: ExamInput) {
+  const body: any = {
+    id,
+    title: payload.title,
+    startedAt: payload.startedAt,
+    endAt: payload.endAt,
+  };
+  if (payload.durationTime != null) body.durationTime = payload.durationTime;
+  if (payload.type != null) body.type = payload.type;
+  if (payload.courseId != null) body.course = { id: payload.courseId };
+  if (Array.isArray(payload.questionIds)) body.questions = payload.questionIds.map((id) => ({ id }));
+  const response = await api.put<any>(`/api/exams/${id}`, body);
+  return response.data;
 }

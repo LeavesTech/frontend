@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { changePassword, clearToken, getAccount } from "../api/authService";
 import { getExams } from "../api/examService";
+import CreateUpdateModal from "../components/CreateUpdateModal";
+import CourseCreateUpdateModal from "../components/CourseCreateUpdateModal";
 import { getSubmissions } from "../api/submissionService";
 import { getSecurityIncidents } from "../api/securityService";
 import type { Exam } from "../api/examService";
@@ -106,6 +108,11 @@ export function Dashboard() {
   const [securityData, setSecurityData] = useState<SecurityIncident[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [dataError, setDataError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "update">("create");
+  const [selectedExam, setSelectedExam] = useState<Exam | undefined>(undefined);
+  const [courseModalOpen, setCourseModalOpen] = useState(false);
+  const [courseModalMode, setCourseModalMode] = useState<"create" | "update">("create");
 
   useEffect(() => {
     const fetchAccount = async () => {
@@ -122,6 +129,13 @@ export function Dashboard() {
 
     fetchAccount();
   }, []);
+
+  const reloadExams = async () => {
+    try {
+      const fetchedExams = await getExams();
+      setExamData(fetchedExams ?? []);
+    } catch {}
+  };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -407,6 +421,15 @@ export function Dashboard() {
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left font-semibold text-slate-700 hover:border-rose-200">
                 Uyarı Gönder
               </button>
+              <button
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left font-semibold text-slate-700 hover:border-emerald-200"
+                onClick={() => {
+                  setCourseModalMode("create");
+                  setCourseModalOpen(true);
+                }}
+              >
+                Ders Oluştur
+              </button>
             </div>
           </div>
         </aside>
@@ -510,9 +533,21 @@ export function Dashboard() {
                     <h2 className="text-lg font-semibold text-slate-900">Aktif Sınav Listesi</h2>
                     <p className="text-sm text-slate-500">Durum, kalan süre ve gönderim sayısı</p>
                   </div>
-                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                    {filteredExams.length} kayıt
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                      {filteredExams.length} kayıt
+                    </span>
+                    <button
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-emerald-200"
+                      onClick={() => {
+                        setSelectedExam(undefined);
+                        setModalMode("create");
+                        setModalOpen(true);
+                      }}
+                    >
+                      Sınav Oluştur
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   {filteredExams.map((exam) => (
@@ -533,6 +568,17 @@ export function Dashboard() {
                         </button>
                         <button className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-amber-200">
                           {exam.status === "aktif" ? "Sınavı Sonlandır" : "Sınavı Başlat"}
+                        </button>
+                        <button
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-indigo-200"
+                          onClick={() => {
+                            const orig = examData.find((e) => e.id === exam.id);
+                            setSelectedExam(orig);
+                            setModalMode("update");
+                            setModalOpen(true);
+                          }}
+                        >
+                          Düzenle
                         </button>
                       </div>
                     </div>
@@ -800,6 +846,19 @@ export function Dashboard() {
           </section>
         </main>
       </div>
+      <CreateUpdateModal
+        open={modalOpen}
+        mode={modalMode}
+        exam={selectedExam}
+        onClose={() => setModalOpen(false)}
+        onSaved={reloadExams}
+      />
+      <CourseCreateUpdateModal
+        open={courseModalOpen}
+        mode={courseModalMode}
+        onClose={() => setCourseModalOpen(false)}
+        onSaved={() => {}}
+      />
     </div>
   );
 }
