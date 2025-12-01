@@ -368,73 +368,107 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50">
-      <div className="flex min-h-screen">
-        <aside className="hidden lg:flex w-64 flex-shrink-0 flex-col gap-6 bg-white/80 border-r border-slate-200 p-6 backdrop-blur">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Rol</p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setRole("teacher")}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold border ${
-                  role === "teacher"
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                    : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                Öğretmen
-              </button>
-              <button
-                onClick={() => setRole("manager")}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold border ${
-                  role === "manager"
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                    : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                Kurum
-              </button>
-            </div>
+      <div className="min-h-screen">
+          <div className="sticky top-0 z-20 border-b border-slate-200 bg-white shadow-sm">
+              {/* Top Bar - Logo & User Info */}
+              <div className="border-b border-slate-100">
+                  <div className="container mx-auto flex items-center justify-between px-6 py-3">
+                      <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 text-white font-bold text-sm">
+                                  SE
+                              </div>
+                              <div>
+                                  <h1 className="text-sm font-bold text-slate-900">Secure Exam</h1>
+                                  <p className="text-xs text-slate-500">Güvenlik Odaklı Platform</p>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5">
+                              <span className="text-xs font-medium text-slate-600">Rol:</span>
+                              <button
+                                  onClick={() => setRole("teacher")}
+                                  className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
+                                      role === "teacher"
+                                          ? "bg-indigo-600 text-white shadow-sm"
+                                          : "text-slate-600 hover:bg-white"
+                                  }`}
+                              >
+                                  Öğretmen
+                              </button>
+                              <button
+                                  onClick={() => setRole("manager")}
+                                  className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
+                                      role === "manager"
+                                          ? "bg-indigo-600 text-white shadow-sm"
+                                          : "text-slate-600 hover:bg-white"
+                                  }`}
+                              >
+                                  Kurum
+                              </button>
+                          </div>
+
+                          <button className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">
+                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                              </svg>
+                          </button>
+
+                          <button
+                              onClick={handleLogout}
+                              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                          >
+                              Çıkış Yap
+                          </button>
+                      </div>
+                  </div>
+              </div>
+
+              {/* Navigation & Actions */}
+              <div className="container mx-auto px-6 py-3">
+                  <div className="flex items-center justify-between gap-4">
+                      {/* Navigation Links */}
+                      <nav className="flex items-center gap-1">
+                          {roleNavigation[role].map((item, index) => (
+                              <a
+                                  key={item}
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                      index === 0
+                                          ? "bg-indigo-50 text-indigo-700"
+                                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                  }`}
+                                  href="#"
+                              >
+                                  {item}
+                              </a>
+                          ))}
+                      </nav>
+
+                      {/* Quick Actions */}
+                      <div className="flex items-center gap-2">
+                          <button className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors">
+                              Sınavı Başlat
+                          </button>
+                          <button className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-sm font-semibold text-rose-700 hover:bg-rose-100 transition-colors">
+                              Sınavı Sonlandır
+                          </button>
+                          <button
+                              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors shadow-sm"
+                              onClick={() => {
+                                  setCourseModalMode("create");
+                                  setCourseModalOpen(true);
+                              }}
+                          >
+                              + Ders Oluştur
+                          </button>
+                      </div>
+                  </div>
+              </div>
           </div>
 
-          <nav className="space-y-1">
-            {roleNavigation[role].map((item) => (
-              <a
-                key={item}
-                className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                href="#"
-              >
-                <span className="h-2 w-2 rounded-full bg-indigo-200" aria-hidden />
-                {item}
-              </a>
-            ))}
-          </nav>
-
-          <div className="mt-auto space-y-2 rounded-2xl bg-slate-50 border border-slate-200 p-4">
-            <p className="text-sm font-semibold text-slate-800">Hızlı Aksiyonlar</p>
-            <div className="flex flex-col gap-2 text-sm">
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left font-semibold text-slate-700 hover:border-indigo-200">
-                Sınavı Başlat
-              </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left font-semibold text-slate-700 hover:border-indigo-200">
-                Sınavı Sonlandır
-              </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left font-semibold text-slate-700 hover:border-rose-200">
-                Uyarı Gönder
-              </button>
-              <button
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left font-semibold text-slate-700 hover:border-emerald-200"
-                onClick={() => {
-                  setCourseModalMode("create");
-                  setCourseModalOpen(true);
-                }}
-              >
-                Ders Oluştur
-              </button>
-            </div>
-          </div>
-        </aside>
-
-        <main className="flex-1 p-6 lg:p-10">
+        <main className="p-6 lg:p-10">
           <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Güvenlik Odaklı Dashboard</p>
